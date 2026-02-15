@@ -1,22 +1,19 @@
-"use client"
+'use client'
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from 'react'
 
-interface Props {
-  productId: string
-}
-
-export function WishlistButton({ productId }: Props) {
+export default function AddRemoveWishlistPage() {
   const [inWishlist, setInWishlist] = useState(false)
+  const productId = '123' // ممكن تجي من props أو params
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem('token')
     if (!token) return
 
     async function checkWishlist() {
       try {
-        const res = await fetch("https://ecommerce.routemisr.com/api/v1/wishlist", {
-          method: "GET",
+        const res = await fetch('https://ecommerce.routemisr.com/api/v1/wishlist', {
+          method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         })
         const data = await res.json()
@@ -30,42 +27,10 @@ export function WishlistButton({ productId }: Props) {
     checkWishlist()
   }, [productId])
 
-  const handleToggleWishlist = async () => {
-    const token = localStorage.getItem("token")
-    if (!token) return alert("Please login first")
-
-    try {
-      if (inWishlist) {
-
-        await fetch(`https://ecommerce.routemisr.com/api/v1/wishlist/${productId}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        setInWishlist(false)
-      } else {
-        await fetch("https://ecommerce.routemisr.com/api/v1/wishlist", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ product: productId }),
-        })
-        setInWishlist(true)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   return (
-    <button
-      onClick={handleToggleWishlist}
-      className={`mt-2 px-4 py-1 rounded transition ${
-        inWishlist ? "bg-red-600 text-white" : "bg-gray-300"
-      }`}
-    >
-      {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
-    </button>
+    <div className="p-6 text-center">
+      <h2>Wishlist Add/Remove</h2>
+      <p>{inWishlist ? 'In Wishlist' : 'Not in Wishlist'}</p>
+    </div>
   )
 }
