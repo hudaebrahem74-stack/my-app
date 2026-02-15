@@ -6,26 +6,65 @@ interface Props {
 }
 
 export default async function ProductDetails({ params }: Props) {
-  const res = await fetch(`https://ecommerce.routemisr.com/api/v1/products/${params.id}`, { cache: "no-store" })
-  const data = await res.json()
-  const product: Product | null = data.data
+  let product: Product | null = null
+
+  try {
+    const res = await fetch(
+      `https://ecommerce.routemisr.com/api/v1/products/${params.id}`,
+      { cache: "no-store" }
+    )
+
+    if (!res.ok) {
+      return (
+        <div className="p-10 text-center text-red-500">
+          Failed to load product
+        </div>
+      )
+    }
+
+    const data = await res.json()
+    product = data.data
+  } catch (error) {
+    return (
+      <div className="p-10 text-center text-red-500">
+        Something went wrong
+      </div>
+    )
+  }
 
   if (!product) {
-    return <div className="p-10 text-center text-red-500">Product not found</div>
+    return (
+      <div className="p-10 text-center text-red-500">
+        Product not found
+      </div>
+    )
   }
 
   return (
     <div className="container mx-auto p-6 grid md:grid-cols-2 gap-6">
       <div>
         <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-4">
-          <Image src={product.imageCover} alt={product.title} fill className="object-contain" />
+          <Image
+            src={product.imageCover || "/placeholder.png"}
+            alt={product.title}
+            fill
+            className="object-contain"
+          />
         </div>
 
         <div className="flex gap-2 overflow-x-auto">
           {product.images?.length ? (
             product.images.map((img, i) => (
-              <div key={i} className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden">
-                <Image src={img} alt={`${product.title} ${i}`} fill className="object-contain" />
+              <div
+                key={i}
+                className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden"
+              >
+                <Image
+                  src={img || "/placeholder.png"}
+                  alt={`${product.title} ${i}`}
+                  fill
+                  className="object-contain"
+                />
               </div>
             ))
           ) : (
@@ -42,9 +81,23 @@ export default async function ProductDetails({ params }: Props) {
           {product.priceAfterDiscount ?? product.price} EGP
         </p>
 
-        <p className="mb-2">⭐ {product.ratingsAverage} ({product.ratingsQuantity})</p>
-        <p className="mb-2">Brand: <span className="font-semibold">{product.brand.name}</span></p>
-        <p className="mb-4">Category: <span className="font-semibold">{product.category.name}</span></p>
+        <p className="mb-2">
+          ⭐ {product.ratingsAverage} ({product.ratingsQuantity})
+        </p>
+
+        <p className="mb-2">
+          Brand:{" "}
+          <span className="font-semibold">
+            {product.brand?.name || "N/A"}
+          </span>
+        </p>
+
+        <p className="mb-4">
+          Category:{" "}
+          <span className="font-semibold">
+            {product.category?.name || "N/A"}
+          </span>
+        </p>
       </div>
     </div>
   )
