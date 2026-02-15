@@ -1,7 +1,6 @@
 import { Product } from "@/types/productinterface"
 import Image from "next/image"
 import Link from "next/link"
-import { AddToCartButton } from "@/app/components/addToCartButton"
 
 export default async function Products() {
   const req = await fetch("https://ecommerce.routemisr.com/api/v1/products", { cache: "no-store" })
@@ -54,7 +53,6 @@ export default async function Products() {
             </p>
 
 
-            <AddToCartButton productId={prod._id} />
           </div>
         </Link>
       ))}

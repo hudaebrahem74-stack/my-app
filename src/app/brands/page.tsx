@@ -1,4 +1,9 @@
 import React from 'react'
+interface Brand {
+  _id: string
+  name: string
+  image: string
+}
 
 
 export default async function Brands() {

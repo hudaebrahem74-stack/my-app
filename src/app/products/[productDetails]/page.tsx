@@ -1,6 +1,5 @@
 import { Product } from "@/types/productinterface"
 import Image from "next/image"
-import { AddToCartButton } from "@/components/AddToCartButton"
 
 interface Props {
   params: { id: string }
@@ -9,7 +8,11 @@ interface Props {
 export default async function ProductDetails({ params }: Props) {
   const res = await fetch(`https://ecommerce.routemisr.com/api/v1/products/${params.id}`, { cache: "no-store" })
   const data = await res.json()
-  const product: Product = data.data
+  const product: Product | null = data.data
+
+  if (!product) {
+    return <div className="p-10 text-center text-red-500">Product not found</div>
+  }
 
   return (
     <div className="container mx-auto p-6 grid md:grid-cols-2 gap-6">
@@ -42,8 +45,6 @@ export default async function ProductDetails({ params }: Props) {
         <p className="mb-2">⭐ {product.ratingsAverage} ({product.ratingsQuantity})</p>
         <p className="mb-2">Brand: <span className="font-semibold">{product.brand.name}</span></p>
         <p className="mb-4">Category: <span className="font-semibold">{product.category.name}</span></p>
-
-        <AddToCartButton product={product} />
       </div>
     </div>
   )

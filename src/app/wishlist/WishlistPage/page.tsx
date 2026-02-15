@@ -5,9 +5,16 @@ import Image from "next/image"
 import Link from "next/link"
 
 interface WishlistItem {
-    statusMsg: string
-    message: string
+  _id: string
+  product: {
+    _id: string
+    title: string
+    price: number
+    priceAfterDiscount?: number
+    imageCover: string
   }
+}
+
 
 
 export default function WishlistPage() {
