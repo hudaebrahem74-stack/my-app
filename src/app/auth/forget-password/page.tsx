@@ -3,67 +3,62 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const forgotSchema = z.object({
-  email: z.string().email("Invalid email"),
+const schema = z.object({
+  email: z.string().email(),
 });
 
-type ForgotFormValues = z.infer<typeof forgotSchema>;
-
 export default function ForgetPasswordPage() {
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const { register, handleSubmit, formState: { errors } } = useForm<ForgotFormValues>({
-    resolver: zodResolver(forgotSchema),
-  });
+  const { register, handleSubmit, formState: { errors } } =
+    useForm({ resolver: zodResolver(schema) });
 
-  async function submitForm(values: ForgotFormValues) {
+  async function onSubmit(values: any) {
     setLoading(true);
     setError("");
-    setMessage("");
 
     try {
       const res = await fetch("https://ecommerce.routemisr.com/api/v1/auth/forgotPasswords", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: values.email }),
+        body: JSON.stringify(values),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Something went wrong");
-        setLoading(false);
+        setError(data.message);
         return;
       }
 
-      setMessage("Check your email for the reset link!");
-    } catch (err) {
-      console.log(err);
-      setError("Something went wrong. Try again.");
+      router.push("/auth/reset-password");
+    } catch {
+      setError("Something went wrong");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <form onSubmit={handleSubmit(submitForm)} className="w-96 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4 text-center text-green-600">Forgot Password</h2>
+    <div className="flex items-center justify-center min-h-screen">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-96 p-6 bg-white shadow-md rounded">
+        <h2 className="text-xl font-bold mb-4 text-green-600 text-center">Forgot Password</h2>
 
-        {error && <p className="text-red-500 mb-3">{error}</p>}
-        {message && <p className="text-green-600 mb-3">{message}</p>}
+        {error && <p className="text-red-500 mb-2">{error}</p>}
 
-        <div className="mb-4">
-          <input type="email" placeholder="Email" {...register("email")} className="w-full p-2 border rounded" />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-        </div>
+        <input type="email" placeholder="Email"
+          {...register("email")}
+          className="w-full p-2 border rounded mb-2" />
+        {errors.email && <p className="text-red-500 text-sm">{errors.email?.message as string}</p>}
 
-        <button type="submit" disabled={loading} className="w-full bg-green-600 text-white p-2 rounded hover:bg-gray-800">
-          {loading ? "Sending..." : "Send Reset Link"}
+        <button disabled={loading}
+          className="w-full bg-green-600 text-white p-2 rounded">
+          {loading ? "Sending..." : "Send Code"}
         </button>
       </form>
     </div>
